@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Panda Procurement Control Room</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Purchase analytics for Panda Shoes Industry Ltd — PR to payment status, lead-time follow-up, risk signals, suppliers, spend and cash.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@500;700&text=%E0%A7%B3&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-good" viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-warning" viewBox="0 0 16 16"><path d="M8 3.5v5.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="8" cy="12.3" r="1.3" fill="currentColor"/></symbol>
+  <symbol id="i-serious" viewBox="0 0 16 16"><path d="M8 2l6.5 11.5h-13z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 6.3v3.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="11.6" r="1" fill="currentColor"/></symbol>
+  <symbol id="i-critical" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.5" fill="currentColor"/></symbol>
+  <symbol id="i-info" viewBox="0 0 16 16"><circle cx="8" cy="4.2" r="1.3" fill="currentColor"/><path d="M8 7v5.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+</svg>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"><path d="M3 7.5L12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5L12 12l9-4.5M12 12v9"/></svg>
+      </div>
+      <div>
+        <div class="eyebrow" id="company-name">Panda Shoes Industry Ltd</div>
+        <h1 id="app-title">Procurement Control Room</h1>
+        <p>PR → OPEX/CAPEX approval → PO → In-house → Payment · values in ৳ (L = lakh, Cr = crore)</p>
+      </div>
+    </div>
+    <div class="top-tools">
+      <div class="asof"><label for="asof">As of</label><input type="date" id="asof"></div>
+      <span class="src-chip" id="src-chip">Loading…</span>
+      <label class="tbtn" for="xlsx-file" title="Load a newer copy of the purchase Excel file">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 11V2M4.5 5.5L8 2l3.5 3.5M2.5 10.5v3h11v-3"/></svg>Load Excel
+      </label>
+      <input type="file" id="xlsx-file" accept=".xlsx,.xlsm" class="sr-only">
+      <button class="tbtn" id="btn-refresh" type="button" title="Reload the data">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13.5 8A5.5 5.5 0 1 1 11.8 4M13.5 2.5V5.5h-3"/></svg>Refresh
+      </button>
+      <button class="tbtn" id="btn-theme" type="button" aria-label="Switch light or dark theme">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 9.5A5.5 5.5 0 1 1 6.5 3a4.5 4.5 0 0 0 6.5 6.5z"/></svg>Theme
+      </button>
+      <button class="tbtn" id="btn-print" type="button" hidden>
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6V2h8v4M4 12H2.5V6.5h11V12H12M4.5 10h7v4h-7z"/></svg>Print
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Dashboard sections">
+  <div class="wrap" role="tablist" id="tablist">
+    <button class="tab-btn" role="tab" data-tab="overview" aria-selected="true">Overview</button>
+    <button class="tab-btn" role="tab" data-tab="leadtime" aria-selected="false">Lead Time &amp; Follow-up</button>
+    <button class="tab-btn" role="tab" data-tab="actions" aria-selected="false">Action Center <span class="badge" id="badge-high" hidden></span></button>
+    <button class="tab-btn" role="tab" data-tab="suppliers" aria-selected="false">Suppliers</button>
+    <button class="tab-btn" role="tab" data-tab="spend" aria-selected="false">Spend &amp; Budget</button>
+    <button class="tab-btn" role="tab" data-tab="finance" aria-selected="false">Payments &amp; Cash</button>
+    <button class="tab-btn" role="tab" data-tab="controls" aria-selected="false">Sourcing &amp; Invoices</button>
+    <button class="tab-btn" role="tab" data-tab="register" aria-selected="false">Purchase Register</button>
+    <button class="tab-btn tab-tool" role="tab" data-tab="entry" aria-selected="false">＋ Data Entry</button>
+    <button class="tab-btn tab-tool" role="tab" data-tab="admin" aria-selected="false">Admin</button>
+  </div>
+</nav>
+
+<section class="filters" aria-label="Filters">
+  <div class="wrap">
+    <span class="lbl">Filter</span>
+    <select id="f-dept" aria-label="Department"></select>
+    <select id="f-category" aria-label="Category"></select>
+    <select id="f-supplier" aria-label="Supplier"></select>
+    <select id="f-spend" aria-label="Spend type"></select>
+    <select id="f-origin" aria-label="Local or import"></select>
+    <button class="linkbtn" id="f-reset" type="button">Clear filters</button>
+    <span class="active-count" id="f-count"></span>
+  </div>
+</section>
+
+<main class="wrap">
+  <div id="loading" class="loading">Loading purchase data…</div>
+
+  <!-- OVERVIEW -->
+  <section class="tab-panel" id="tab-overview" data-panel="overview" hidden>
+    <div id="alert-strip"></div>
+    <div class="grid">
+      <div class="card c4">
+        <div class="card-h"><h2>Procurement health</h2><span class="sub">0–100, weighted</span></div>
+        <div class="health" id="health"></div>
+      </div>
+      <div class="card c8">
+        <div class="card-h"><h2>Where every purchase line stands</h2><span class="sub">Click a stage to open those lines</span></div>
+        <div id="pipeline"></div>
+      </div>
+    </div>
+    <div class="section-title"><h2>Risk signals</h2></div>
+    <div class="signals" id="signals"></div>
+    <div class="section-title"><h2>Key figures</h2></div>
+    <div class="kpis" id="kpis"></div>
+    <div class="grid">
+      <div class="card c7">
+        <div class="card-h"><h2>Needs attention first</h2><button class="linkbtn" data-goto="actions" type="button">Open Action Center →</button></div>
+        <div id="top-actions"></div>
+      </div>
+      <div class="card c5">
+        <div class="card-h"><h2>Management highlights</h2><span class="sub">Written from the latest data</span></div>
+        <ul class="highlights" id="highlights"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEAD TIME -->
+  <section class="tab-panel" id="tab-leadtime" data-panel="leadtime" hidden>
+    <div class="stats" id="lt-stats"></div>
+    <div class="card">
+      <div class="card-h"><h2>Open purchase orders · delivery countdown</h2><span class="sub">Bar = PO date → supplier committed date · fill = quantity received</span></div>
+      <div id="timeline"></div>
+      <div class="legend"><span><i style="background:var(--brand-soft);border:1px solid var(--brand)"></i>Agreed lead time</span><span><i style="background:var(--brand);opacity:.55"></i>Received so far</span><span><i style="background:repeating-linear-gradient(135deg,var(--critical) 0 3px,var(--critical-bg) 3px 6px)"></i>Late beyond committed date</span><span><i style="background:var(--accent)"></i>Today</span></div>
+    </div>
+    <div class="grid">
+      <div class="card c6">
+        <div class="card-h"><h2>Process speed vs service level</h2><span class="sub">Average days per step</span></div>
+        <div class="sla-rows" id="sla"></div>
+      </div>
+      <div class="card c6">
+        <div class="card-h"><h2>Waiting for approval or PO</h2><span class="sub">Days waiting vs SLA</span></div>
+        <div id="waiting"></div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card c8">
+        <div class="card-h"><h2>Supplier lead time and delay</h2><span class="sub">Average days, closed deliveries</span></div>
+        <div class="chart-box tall"><canvas id="ch-lead"></canvas></div>
+      </div>
+      <div class="card c4">
+        <div class="card-h"><h2>Local vs import</h2></div>
+        <div id="origin"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACTIONS -->
+  <section class="tab-panel" id="tab-actions" data-panel="actions" hidden>
+    <div class="card">
+      <div class="card-h"><h2>Action Center</h2><span class="sub">Sorted High → Medium → Low. Fix the cause in the register and the line leaves this list.</span></div>
+      <div class="tbl-tools">
+        <div class="seg" id="prio-seg">
+          <button type="button" data-p="" aria-pressed="true">All</button><button type="button" data-p="High" aria-pressed="false">High</button>
+          <button type="button" data-p="Medium" aria-pressed="false">Medium</button><button type="button" data-p="Low" aria-pressed="false">Low</button>
+        </div>
+        <input type="search" id="act-search" placeholder="Search PR, item, supplier or action…" aria-label="Search actions">
+      </div>
+      <div class="tbl-wrap"><table id="act-table"></table></div>
+    </div>
+  </section>
+
+  <!-- SUPPLIERS -->
+  <section class="tab-panel" id="tab-suppliers" data-panel="suppliers" hidden>
+    <div class="grid">
+      <div class="card c6">
+        <div class="card-h"><h2>Supplier performance score</h2><span class="sub">40% OTIF · 20% in-full · 25% QC · 15% price</span></div>
+        <div class="chart-box tall"><canvas id="ch-score"></canvas></div>
+      </div>
+      <div class="card c6">
+        <div class="card-h"><h2>Spend concentration</h2><span class="sub" id="hhi-sub"></span></div>
+        <div class="chart-box tall"><canvas id="ch-share"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h2>Supplier scorecard</h2><span class="sub">A ≥ 80 Preferred · B 60–79 Approved · C &lt; 60 Review</span></div>
+      <div class="tbl-wrap"><table id="sup-table"></table></div>
+    </div>
+  </section>
+
+  <!-- SPEND -->
+  <section class="tab-panel" id="tab-spend" data-panel="spend" hidden>
+    <div class="stats" id="spend-stats"></div>
+    <div class="grid">
+      <div class="card c8">
+        <div class="card-h"><h2>Spend by category · ABC (Pareto)</h2><span class="sub">Bar label: ৳ lakh · cumulative share</span></div>
+        <div class="chart-box tall"><canvas id="ch-pareto"></canvas></div>
+        <div class="legend"><span><i style="background:var(--s1)"></i>Class A — first 80% of spend</span><span><i style="background:var(--s3)"></i>Class B — next 15%</span><span><i style="background:var(--s7)"></i>Class C — last 5%</span></div>
+      </div>
+      <div class="card c4">
+        <div class="card-h"><h2>OPEX vs CAPEX</h2><span class="sub">Committed incl. tax</span></div>
+        <div class="chart-box tall"><canvas id="ch-opex"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h2>Monthly procurement flow</h2><span class="sub">৳ lakh · PO value by PO month, paid by payment month, outstanding by due month</span></div>
+      <div class="chart-box"><canvas id="ch-monthly"></canvas></div>
+    </div>
+    <div class="grid">
+      <div class="card c7">
+        <div class="card-h"><h2>Budget utilisation by department</h2><span class="sub">Marks at Watch threshold and 100%</span></div>
+        <div class="bud-rows" id="budget"></div>
+      </div>
+      <div class="card c5">
+        <div class="card-h"><h2>Price vs budget by category</h2><span class="sub">Negative = saving</span></div>
+        <div class="tbl-wrap"><table id="pv-table"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINANCE -->
+  <section class="tab-panel" id="tab-finance" data-panel="finance" hidden>
+    <div class="stats" id="fin-stats"></div>
+    <div class="grid">
+      <div class="card c6">
+        <div class="card-h"><h2>Payables aging</h2><span class="sub">Outstanding by days past due, ৳ lakh</span></div>
+        <div class="chart-box"><canvas id="ch-aging"></canvas></div>
+      </div>
+      <div class="card c6">
+        <div class="card-h"><h2>Payment status of POs</h2><span class="sub">Value incl. tax, ৳ lakh</span></div>
+        <div class="chart-box"><canvas id="ch-finstatus"></canvas></div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card c6">
+        <div class="card-h"><h2>Payment terms mix</h2><span class="sub">Advance terms tie up cash before goods arrive</span></div>
+        <div class="tbl-wrap"><table id="terms-table"></table></div>
+      </div>
+      <div class="card c6">
+        <div class="card-h"><h2>Payable and overdue by supplier</h2><span class="sub">৳ lakh</span></div>
+        <div class="chart-box"><canvas id="ch-supplier-pay"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h2>Payment schedule — overdue and next 60 days</h2><span class="sub">Planned instalments from the Payments log; lines without a plan use their next due date</span></div>
+      <div class="tbl-wrap" style="max-height:520px;overflow:auto"><table id="sched-table"></table></div>
+    </div>
+  </section>
+
+  <!-- SOURCING & INVOICES -->
+  <section class="tab-panel" id="tab-controls" data-panel="controls" hidden>
+    <div class="mode demo" id="ctl-note">The Quotations and Invoices logs are not in use yet. Record them in Data Entry to see sourcing compliance and three-way invoice matching.</div>
+    <div class="stats" id="ctl-stats"></div>
+    <div class="grid">
+      <div class="card c12">
+        <div class="card-h"><h2>Sourcing compliance</h2><span class="sub">Enough quotations taken, lowest price chosen</span></div>
+        <div class="tbl-tools"><div class="seg" id="q-seg"><button type="button" data-q="issues" aria-pressed="true">Needs attention</button><button type="button" data-q="all" aria-pressed="false">All lines</button></div></div>
+        <div class="tbl-wrap" style="max-height:520px;overflow:auto"><table id="q-table"></table></div>
+      </div>
+      <div class="card c12">
+        <div class="card-h"><h2>Invoice matching</h2><span class="sub">PO · goods accepted · supplier invoice</span></div>
+        <div class="chart-box short"><canvas id="ch-match"></canvas></div>
+        <p class="note">Matched = invoice quantity and price agree with the PO and with the quantity accepted at QC. Invoiced, goods pending = the invoice came before the goods (normal for LC imports) and is within the order. Mismatch = invoiced more than ordered (goods pending) or more than accepted (line closed), price outside tolerance, above the PO value, or paid beyond what was invoiced.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h2>Three-way match by purchase order</h2><span class="sub">Mismatches first</span></div>
+      <div class="tbl-wrap" style="max-height:620px;overflow:auto"><table id="m-table"></table></div>
+    </div>
+  </section>
+
+  <!-- REGISTER -->
+  <section class="tab-panel" id="tab-register" data-panel="register" hidden>
+    <div class="card">
+      <div class="card-h"><h2>Purchase register</h2><span class="sub" id="reg-count"></span></div>
+      <div class="tbl-tools">
+        <input type="search" id="reg-search" placeholder="Search PR, PO, item, supplier…" aria-label="Search the register">
+        <select id="reg-stage" aria-label="Stage"></select>
+        <select id="reg-fin" aria-label="Finance status"></select>
+      </div>
+      <div class="tbl-wrap"><table id="reg-table"></table></div>
+      <p class="note">Click a line to see its full journey from PR to payment.</p>
+    </div>
+  </section>
+
+  <!-- DATA ENTRY -->
+  <section class="tab-panel" id="tab-entry" data-panel="entry" hidden><div id="entry-root" class="stack"></div></section>
+
+  <!-- ADMIN -->
+  <section class="tab-panel" id="tab-admin" data-panel="admin" hidden><div id="admin-root" class="stack"></div></section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span id="foot-prepared"></span>
+    <span id="foot-source"></span>
+  </div>
+  <div class="wrap foot-brand">
+    <a href="https://guulba.com" target="_blank" rel="noopener"><b>guulba</b></a><span class="fb-sep" aria-hidden="true">·</span><span>Applied AI for the work that matters.</span>
+  </div>
+</footer>
+
+<div id="drawer-root"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/engine.js"></script>
+<script src="assets/js/xlsx-import.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/entry-rules.js"></script>
+<script src="assets/js/entry-admin.js"></script>
+</body>
+</html>
