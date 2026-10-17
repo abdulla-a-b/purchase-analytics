@@ -62,8 +62,8 @@
     $("#app-title").textContent = CFG.title || "Procurement Control Room";
     const gen = d.meta && d.meta.generated_at ? new Date(d.meta.generated_at) : null;
     $("#src-chip").textContent = `${source}${gen ? " · updated " + gen.toLocaleString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : ""}`;
-    $("#foot-source").textContent = `Source: ${(d.meta && d.meta.source) || "—"} · ${(d.meta && d.meta.rows) || 0} purchase lines${d.meta && d.meta.warnings && d.meta.warnings.length ? " · " + d.meta.warnings.length + " data warning(s)" : ""}`;
-    $("#foot-prepared").textContent = CFG.preparedBy || "";
+    if ($("#foot-source")) $("#foot-source").textContent = `Source: ${(d.meta && d.meta.source) || "—"} · ${(d.meta && d.meta.rows) || 0} purchase lines${d.meta && d.meta.warnings && d.meta.warnings.length ? " · " + d.meta.warnings.length + " data warning(s)" : ""}`;
+    if ($("#foot-prepared")) $("#foot-prepared").textContent = CFG.preparedBy || "";
     if (d.meta && d.meta.warnings && d.meta.warnings.length) toast(`${d.meta.warnings.length} cell(s) could not be read — see the footer.`);
     buildFilters();
     recompute();
