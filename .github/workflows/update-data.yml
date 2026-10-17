@@ -1,0 +1,51 @@
+name: Update dashboard data
+
+# Runs whenever a new copy of the purchase workbook is pushed to data/,
+# or manually from the Actions tab ("Run workflow").
+on:
+  push:
+    paths:
+      - "data/*.xlsx"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python packages
+        run: pip install -r requirements.txt
+
+      - name: Convert Excel to dashboard data
+        run: python scripts/excel_to_json.py --snapshot tests/excel_snapshot.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # Publishes only if the web engine reproduces Excel's own results line by line.
+      - name: Check the web calculations match Excel
+        run: node tests/engine.test.js
+
+      - name: Check the data-entry rules
+        run: node tests/entry.test.js
+
+      # Delivery / payment / quotation / invoice logs must rebuild the register exactly.
+      - name: Check the logs agree with the register
+        run: node tests/logs.test.js
+
+      - name: Commit refreshed data
+        run: |
+          git config user.name "purchase-dashboard-bot"
+          git config user.email "purchase-dashboard-bot@users.noreply.github.com"
+          git add data/purchase_data.json tests/excel_snapshot.json
+          git diff --cached --quiet || git commit -m "Refresh dashboard data from Excel"
+          git push
